@@ -7,16 +7,11 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: "db"
-      # So you don't have to use root, but you can if you like
       MYSQL_USER: "user"
-      # You can use whatever password you like
       MYSQL_PASSWORD: "password"
-      # Password for root access
       MYSQL_ROOT_PASSWORD: "password"
     ports:
-      # <Port exposed> : < MySQL Port running inside container>
       - "3306:3306"
-    # Where our data will be persisted
     volumes:
       - my-db-master:/var/lib/mysql
     networks:
@@ -29,16 +24,11 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: "db"
-      # So you don't have to use root, but you can if you like
       MYSQL_USER: "user"
-      # You can use whatever password you like
       MYSQL_PASSWORD: "password"
-      # Password for root access
       MYSQL_ROOT_PASSWORD: "password"
     ports:
-      # <Port exposed> : < MySQL Port running inside container>
       - "3307:3306"
-    # Where our data will be persisted
     volumes:
       - my-db-slave:/var/lib/mysql
     networks:
@@ -51,26 +41,96 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: "db"
-      # So you don't have to use root, but you can if you like
       MYSQL_USER: "user"
-      # You can use whatever password you like
       MYSQL_PASSWORD: "password"
-      # Password for root access
       MYSQL_ROOT_PASSWORD: "password"
     ports:
-      # <Port exposed> : < MySQL Port running inside container>
       - "3308:3306"
-    # Where our data will be persisted
     volumes:
-      - my-db-slave:/var/lib/mysql
+      - my-db-slave2:/var/lib/mysql
     networks:
       - net-mysql
 
-# Names our volume
+  #wordpress:
+  # image: wordpress
+  #restart: always
+  #ports:
+  # - "8000:80"
+  #links:
+  # - mysql1:db
+  #volumes:
+  # - /Users/Guillermo/docker/wordpress:/var/www/html
+  #environments:
+  # WORDPRESS_DB_HOST: db
+  #WORDPRESS_DB_USER: exampleuser
+  #WORDPRESS_DB_PASSWORD: exampleuser
+  #WORDPRESS_DB_NAME: exampleuser
+  #db:
+  # image: mysql:5.migs/mysql-5.7
+  #restart: always
+  #environments:
+  # MYSQL_DATABASE: exampledb
+  #MYSQL_USER: exampleuser
+  #MYSQL_PASSWORD: examplepass
+  #MYSQL_RANDOM_ROOT:PASSWORD: "1"
+  wordpress1:
+    depends_on:
+      - db-master
+    image: wordpress:latest
+    ports:
+      - "5001:80"
+    restart: always
+    container_name: wordpress1
+    networks:
+      mynetcluster:
+    environment:
+      VIRTUAL_HOST: blog.wordpress1.com
+      WORDPRESS_DB_HOST: 10.0.0.10
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpresspwd
+
+  wordpress2:
+    depends_on:
+      - db-slave
+    image: wordpress:latest
+    ports:
+      - "5002:80"
+    restart: always
+    container_name: wordpress2
+    networks:
+      mynetcluster:
+    environment:
+      VIRTUAL_HOST: blog.wordpress2.com
+      WORDPRESS_DB_HOST: 10.0.0.11
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpresspwd
+
+  wordpress3:
+    depends_on:
+      - db-slave2
+    image: wordpress:latest
+    ports:
+      - "5003:80"
+    restart: always
+    container_name: wordpress3
+    networks:
+      mynetcluster:
+    environment:
+      VIRTUAL_HOST: blog.wordpress3.com
+      WORDPRESS_DB_HOST: 10.0.0.12
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpresspwd
+
 volumes:
   my-db-master:
   my-db-slave:
+  my-db-slave2:
 
 networks:
   net-mysql:
+    driver: bridge
+  mynetcluster:
     driver: bridge
