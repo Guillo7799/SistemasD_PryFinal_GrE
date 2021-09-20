@@ -148,6 +148,17 @@ services:
     volumes:
       - ./db:/var/lib/mysql
 
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - db-master
+      - db-slave
+      - db-slave2
+      - WP
+      - DB
+
 volumes:
   my-db-master:
   my-db-slave:
