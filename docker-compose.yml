@@ -137,6 +137,17 @@ services:
       - "8099:80"
     restart: always
 
+  DB:
+    image: mysql:5.7
+    restart: always
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=proyecto-sd
+      - MYSQL_PASSWORD=wordpress
+      - MYSQL_ROOT_PASSWORD=wordpress
+    volumes:
+      - ./db:/var/lib/mysql
+
 volumes:
   my-db-master:
   my-db-slave:
